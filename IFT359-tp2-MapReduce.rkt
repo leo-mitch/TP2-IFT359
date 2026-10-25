@@ -24,12 +24,15 @@
 
 ; return : liste de triplets (journal, date-min, date-max)
 (define (périodes* journaux)
-    (map (lambda (journal)
-        (let ([dates (map date journal)]) ; prends toutes les dates d'un journal et les met sous forme de liste dans dates
-            (list journal (apply min dates) (apply max dates))))
-    (filter-not empty? journaux)) ; fait en sorte que map applique la fonction lambda sur les journaux non vide.
+    (map période ; applique la fonction utilitaire 'période' pour chaque journal dans 'journaux'
+        (filter-not empty? journaux)) ; fait en sorte que map applique la fonction période sur les journaux non vide.
 )
 
+; fonction utilitaire pour créer le triplet (journal, date-min, date-max)
+(define (période journal)
+    (let ([dates (map date journal)]) ; prends toutes les dates d'un journal et les met sous forme de liste dans dates
+        (list journal (apply min dates) (apply max dates))) ; la liste de triplets retournées
+)
 ;********************************************************************
 
 ; Calculer le nombre total de clics sur
@@ -40,7 +43,22 @@
 
 ; return : un nombre entier (type = number)
 (define (total-clics journaux début fin)
-    0)
+    (length ; retourne la longueur (qui équivaut au nb de clics) de la liste de journaux qui sont dans la condition
+        (filter (entre-debut-fin? début fin) ; filtre les journaux entre les dates de début et fin
+                (aplatir journaux))) ; aplatit la liste journaux
+)
+
+; Fonction utilitaire pour aller chercher les
+; journaux entre la date du début et la date de fin
+; elle retourne une fonction lambda qui retourne un prédicat 
+; pour si une entré du journal est entre la date de début et de fin.
+(define (entre-debut-fin? début fin)
+    (lambda (x) (<= début (date x) fin)))
+
+; Fonction utilitaire pour aplatir 'journaux'
+; au lieu de toujours appeler (apply append journaux) quand on doit aplatir 'journaux' dans un traitement
+(define (aplatir journaux)
+    (apply append journaux))
 
 ;********************************************************************
 
@@ -51,8 +69,17 @@
 
 ; return : un nombre entier (type = number)
 (define (total-clics-sujet journaux sujet début fin)
-    0)
+    (length 
+        (filter (contient-sujet? sujet) 
+        (filter (entre-debut-fin? début fin)
+            (aplatir journaux))))
+)
 
+(define (contient-sujet? sujet)
+    (lambda (s) (member sujet (sujets s))))
+
+;(require "TP2-Journaux-enonce.rkt")
+;(sujets journaux)
 ;********************************************************************
 
 ; Extraire l'ensemble de tous les sujets qui
