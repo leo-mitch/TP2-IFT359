@@ -1,4 +1,8 @@
 #lang racket
+(require racket/trace)
+(require "TP2-Journal.rkt")
+(require "A-listes.rkt")
+
 (provide périodes*)
 (provide total-clics)
 (provide total-clics-sujet)
@@ -20,7 +24,11 @@
 
 ; return : liste de triplets (journal, date-min, date-max)
 (define (périodes* journaux)
-    )
+    (map (lambda (journal)
+        (let ([dates (map date journal)]) ; prends toutes les dates d'un journal et les met sous forme de liste dans dates
+            (list journal (apply min dates) (apply max dates))))
+    (filter-not empty? journaux)) ; fait en sorte que map applique la fonction lambda sur les journaux non vide.
+)
 
 ;********************************************************************
 
@@ -32,7 +40,7 @@
 
 ; return : un nombre entier (type = number)
 (define (total-clics journaux début fin)
-    )
+    0)
 
 ;********************************************************************
 
@@ -43,7 +51,7 @@
 
 ; return : un nombre entier (type = number)
 (define (total-clics-sujet journaux sujet début fin)
-    )
+    0)
 
 ;********************************************************************
 
@@ -52,7 +60,7 @@
 
 ; return : Liste de tous les sujets sans répétition.
 (define (sujets* journaux)
-    )
+    '())
 
 ;********************************************************************
 
@@ -63,7 +71,7 @@
 
 ; return : Liste de tous les sujets sans répétition.
 (define (sujets-liés journaux URL début fin)
-    )
+    '())
 
 ;********************************************************************
 
@@ -74,7 +82,7 @@
 
 ; return : Liste de tous les URLs sans répétition qui respectent la condition.
 (define (populaires journaux seuil début fin)
-    )
+    '())
 
 ;********************************************************************
 
@@ -89,7 +97,7 @@
 ; return : Liste des n URLs sans répétition.
 ; * Il se peut qu’il y ait moins de n URL qui satisfassent la contrainte.
 (define (top journaux n seuil début fin)
-    )
+    '())
 
 ;********************************************************************
 
@@ -100,7 +108,7 @@
 ; return : Liste des paires
 ; (sujet . nb-consécutifs)
 (define (hot journaux n nbjours début fin)
-    )
+    cons)
 
 ;********************************************************************
 
@@ -112,4 +120,4 @@
 ; return : Liste de toutes des paires
 ; (url . nbclics)
 (define (consultation journaux sujets émotion début fin)
-    )
+    cons)
