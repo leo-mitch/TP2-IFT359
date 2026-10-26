@@ -31,7 +31,7 @@
 ; fonction utilitaire pour créer le triplet (journal, date-min, date-max)
 (define (période journal)
     (let ([dates (map date journal)]) ; prends toutes les dates d'un journal et les met sous forme de liste dans dates
-        (list journal (apply min dates) (apply max dates))) ; la liste de triplets retournées
+        (list journal (apply min dates) (apply max dates))) ; le triplet retourné
 )
 ;********************************************************************
 
@@ -41,7 +41,7 @@
 ; la date de fin incluse. Une entrée du
 ; journal correspond à un clic
 
-; return : un nombre entier (type = number)
+; return : un nombre entier
 (define (total-clics journaux début fin)
     (length ; retourne la longueur (qui équivaut au nb de clics) de la liste de journaux qui sont dans la condition
         (filter (entre-debut-fin? début fin) ; filtre les journaux entre les dates de début et fin
@@ -67,19 +67,17 @@
 ; date du début incluse et la date de fin
 ; incluse.
 
-; return : un nombre entier (type = number)
+; return : un nombre entier
 (define (total-clics-sujet journaux sujet début fin)
     (length 
-        (filter (contient-sujet? sujet) 
-        (filter (entre-debut-fin? début fin)
-            (aplatir journaux))))
+        (filter (conjoin (contient-sujet? sujet) (entre-debut-fin? début fin)) ; conjoin retourne un predicat seulement si tous les predicat (contient-sujet? et entre-debut-fin?) retourne true.
+            (aplatir journaux)))
 )
 
+; Fonction utilitaire pour valider si un element d'un journal contient le sujet demander
 (define (contient-sujet? sujet)
-    (lambda (s) (member sujet (sujets s))))
-
-;(require "TP2-Journaux-enonce.rkt")
-;(sujets journaux)
+    (lambda (s) (member sujet (sujets s)))
+)
 ;********************************************************************
 
 ; Extraire l'ensemble de tous les sujets qui
@@ -87,8 +85,13 @@
 
 ; return : Liste de tous les sujets sans répétition.
 (define (sujets* journaux)
-    '())
+        (sujets-sans-répétition (aplatir journaux))
+)
 
+; Fonction utilitaire pour enlever les doublons dans les entrées des journaux
+(define (sujets-sans-répétition entrées)
+    (remove-duplicates (append-map sujets entrées))
+)
 ;********************************************************************
 
 ; Extraire la liste de tous les sujets associés
@@ -98,8 +101,15 @@
 
 ; return : Liste de tous les sujets sans répétition.
 (define (sujets-liés journaux URL début fin)
-    '())
+    (sujets-sans-répétition 
+        (filter 
+            (conjoin (contient-url? URL) (entre-debut-fin? début fin))
+            (aplatir journaux)))
+)
 
+(define (contient-url? URL)
+    (lambda (x) (equal? URL (url x)))
+)
 ;********************************************************************
 
 ; Extraire l'ensemble des URL qui ont
@@ -107,10 +117,11 @@
 ; dans les journaux entre la date du début
 ; incluse et la date de fin incluse.
 
+; fonction qui pourrait etre utiliser : foldr et les fonctions de A-listes
+
 ; return : Liste de tous les URLs sans répétition qui respectent la condition.
 (define (populaires journaux seuil début fin)
     '())
-
 ;********************************************************************
 
 ; La liste en ordre décroissant de clics des
@@ -120,6 +131,8 @@
 ; indépendamment du sujet de recherche
 ; entre la date du début incluse et la date de
 ; fin incluse.
+
+; fonction qui pourrait etre utiliser : foldr, argmax, sort, takef
 
 ; return : Liste des n URLs sans répétition.
 ; * Il se peut qu’il y ait moins de n URL qui satisfassent la contrainte.
@@ -132,6 +145,8 @@
 ; nbjours consécutifs pour une période
 ; donnée
 
+; fonction qui pourrait etre utiliser : group-by
+
 ; return : Liste des paires
 ; (sujet . nb-consécutifs)
 (define (hot journaux n nbjours début fin)
@@ -143,6 +158,8 @@
 ; pour les URL qui traitent d’un des sujets
 ; de la liste avec l’émotion spécifiée
 ; entre la date du début incluse et la date de fin incluse.
+
+; fonction qui pourrait etre utiliser : foldr, ormap
 
 ; return : Liste de toutes des paires
 ; (url . nbclics)
