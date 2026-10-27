@@ -127,7 +127,7 @@
        (let ([ent (url entree)])
        (if (hasKey? ent acc)
          (replace-value ent (+ 1 (value ent acc)) acc)
-         (add-assoc ent acc 1))))
+         (add-assoc ent 1 acc))))
      '()
      entree-filtrees)])
      (keys(filter (lambda (assoc)(>= (value-assoc assoc) seuil)) alist-comptes)))
@@ -148,7 +148,20 @@
 ; return : Liste des n URLs sans répétition.
 ; * Il se peut qu’il y ait moins de n URL qui satisfassent la contrainte.
 (define (top journaux n seuil début fin)
-    '())
+   (let* ([entree-filtrees (filter (entre-debut-fin? début fin)(aplatir journaux))] 
+    [alist-comptes(foldr
+     (lambda (entree acc)
+       (let ([ent (url entree)])
+       (if (hasKey? ent acc)
+         (replace-value ent (+ 1 (value ent acc)) acc)
+         (add-assoc ent 1 acc))))
+     '()
+     entree-filtrees)]
+    [alist-filtree (filter (lambda (assoc)(>= (value-assoc assoc) seuil)) alist-comptes)]
+    [alist-tries (sort alist-filtree(lambda (elem1 elem2) (> (value-assoc elem1)(value-assoc elem2))))]
+    [urls-tries (keys alist-tries)])
+     (take urls-tries (min n (length urls-tries))))
+)
 
 ;********************************************************************
 
