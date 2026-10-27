@@ -174,7 +174,45 @@
 ; return : Liste des paires
 ; (sujet . nb-consécutifs)
 (define (hot journaux n nbjours début fin)
-    cons)
+ (let* ([entree-filtrees (filter (entre-debut-fin? début fin)(aplatir journaux))] 
+ [liste-jours (build-list (+ 1 (- fin début)) (lambda (i) (+ début i)))]
+
+ [tops-jours(map (lambda (jour)
+  (let* ([entrees-jour (filter (lambda (dat) (= (date dat) jour)) entree-filtrees)]
+    [tous-sujets (append-map sujets entrees-jour)]
+    [alist-sujets-jour (foldr (lambda (sujet suj)
+                                (if (hasKey? sujet suj)
+                                    (replace-value sujet(+ 1 (value sujet suj)) suj )
+                                    (add-assoc sujet 1 suj)))
+                                    '()
+                                    tous-sujets)]
+   [alist-tries (sort alist-sujets-jour (lambda (suj1 suj2) (> (value-assoc suj1) (value-assoc suj2))))]
+[top-n-jour (take (keys alist-tries) (min n (length (keys alist-tries))))])
+   top-n-jour ))
+  liste-jours )])
+
+(let* ([tous-sujets(remove-duplicates (append* tops-jours))]
+[sujets-in-jours (map (lambda (sujet)
+                        (let loop ([jours liste-jours]
+                                   [tops tops-jours])
+                                 (cond
+                                   [(null? jours) '()]
+                                   [(member sujet (car tops))
+                                    (cons(car jours) (loop (cdr jours)(cdr tops)))]
+                                   [else (loop (cdr jours)(cdr tops))])))
+                      tous-sujets)]
+  
+[resultats (map (lambda (sujet jours-sujet)
+                  (if (null? jours-sujet)
+                      (cons sujet 0)
+                      (let*([groupes (group-by (lambda (j) (- j (index-of jours-sujet j))) jours-sujet)]
+                        [max (apply max (map length groupes))])
+                      (cons sujet max))))
+           tous-sujets
+           sujets-in-jours)])
+
+   (filter (lambda (p) (>= (cdr p) nbjours)) resultats)
+   )))
 
 ;********************************************************************
 
