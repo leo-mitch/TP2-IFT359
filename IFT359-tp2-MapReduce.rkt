@@ -226,4 +226,18 @@
 ; return : Liste de toutes des paires
 ; (url . nbclics)
 (define (consultation journaux sujets émotion début fin)
-    cons)
+  (let* ([entrees-filtrees (filter (lambda (em)
+                                     (and ((entre-debut-fin? début fin) em)
+                                          (equal? (émotion em) émotion)
+                                          (ormap (lambda (e) (member e sujets)) (sujets em))))
+                                   (aplatir journaux))])
+
+    (foldr (lambda (entree e)
+             (let ([u (url entree)])
+               (if (hasKey? u e)
+                   (replace-value u (+ 1 (value u e)) e)
+                   (add-assoc u 1 e))))
+           '()
+           entrees-filtrees))
+  )
+
