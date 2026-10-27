@@ -121,7 +121,18 @@
 
 ; return : Liste de tous les URLs sans répétition qui respectent la condition.
 (define (populaires journaux seuil début fin)
-    '())
+  (let* ([entree-filtrees (filter (entre-debut-fin? début fin)(aplatir journaux))] 
+    [alist-comptes(foldr
+     (lambda (entree acc)
+       (let ([ent (url entree)])
+       (if (hasKey? ent acc)
+         (replace-value ent (+ 1 (value ent acc)) acc)
+         (add-assoc ent acc 1))))
+     '()
+     entree-filtrees)])
+     (keys(filter (lambda (assoc)(>= (value-assoc assoc) seuil)) alist-comptes)))
+  )
+  
 ;********************************************************************
 
 ; La liste en ordre décroissant de clics des
