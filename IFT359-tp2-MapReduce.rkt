@@ -158,9 +158,8 @@
      '()
      entree-filtrees)]
     [alist-filtree (filter (lambda (assoc)(>= (value-assoc assoc) seuil)) alist-comptes)]
-    [alist-tries (sort alist-filtree(lambda (elem1 elem2) (> (value-assoc elem1)(value-assoc elem2))))]
-    [urls-tries (keys alist-tries)])
-     (take urls-tries (min n (length urls-tries))))
+    [alist-tries (sort alist-filtree(lambda (elem1 elem2) (> (value-assoc elem1)(value-assoc elem2))))])
+     (take alist-tries (min n (length alist-tries))))
 )
 
 ;********************************************************************
